@@ -12,6 +12,7 @@ import { formatTime } from "@/lib/time";
 
 export type AudioWaveformHandle = {
   pause: () => void;
+  playPause: () => void;
   seekTo: (time: number) => void;
 };
 
@@ -51,6 +52,7 @@ const AudioWaveform = forwardRef<AudioWaveformHandle, Props>(function AudioWavef
 
   useImperativeHandle(ref, () => ({
     pause: () => wsRef.current?.pause(),
+    playPause: () => wsRef.current?.playPause(),
     seekTo: (time: number) => {
       wsRef.current?.setTime(time);
       setCurrentTime(time);
@@ -171,6 +173,9 @@ const AudioWaveform = forwardRef<AudioWaveformHandle, Props>(function AudioWavef
           正在标记：{formatTime(markingStartTime)} 起
         </p>
       )}
+      <p className="text-[12px] text-[#A1A1AA] mt-2">
+        快捷键：Space 播放/暂停 · M 开始/结束标记
+      </p>
     </div>
   );
 });

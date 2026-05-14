@@ -129,6 +129,51 @@ export default function WorknotePage() {
     });
   }, [currentTime, duration]);
 
+  // Refs for keyboard shortcuts to avoid stale closures
+  const markingStateRef = useRef(markingState);
+  markingStateRef.current = markingState;
+  const handleStartMarkingRef = useRef(handleStartMarking);
+  handleStartMarkingRef.current = handleStartMarking;
+  const handleEndMarkingRef = useRef(handleEndMarking);
+  handleEndMarkingRef.current = handleEndMarking;
+
+  function isTypingTarget(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) return false;
+    const tagName = target.tagName.toLowerCase();
+    return (
+      tagName === "input" ||
+      tagName === "textarea" ||
+      tagName === "select" ||
+      tagName === "button" ||
+      target.isContentEditable
+    );
+  }
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (e.repeat) return;
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        audioRef.current?.playPause();
+        return;
+      }
+
+      if (e.key === "m" || e.key === "M") {
+        const state = markingStateRef.current;
+        if (state.phase === "idle") {
+          handleStartMarkingRef.current();
+        } else if (state.phase === "marking") {
+          handleEndMarkingRef.current();
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleAudioFinish = useCallback(() => {
     setMarkingState((prev) => {
       if (prev.phase === "marking") {

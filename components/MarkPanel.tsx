@@ -114,7 +114,7 @@ export default function MarkPanel({
     return (
       <button
         onClick={onClick}
-        className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${
+        className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors whitespace-nowrap ${
           active
             ? "bg-[#F2F2F7] text-[#1D1D1F]"
             : "text-[#6E6E73] hover:text-[#3A3A3C]"
@@ -147,13 +147,13 @@ export default function MarkPanel({
         <div className="flex items-center gap-1">
           <span className="text-xs text-[#A1A1AA] mr-0.5">类型</span>
           {selectBtn("全部", "all", typeFilter, () => setTypeFilter("all"))}
-          {selectBtn("歌词行", "lyric_line", typeFilter, () => setTypeFilter("lyric_line"))}
-          {selectBtn("时间段", "time_range", typeFilter, () => setTypeFilter("time_range"))}
+          {selectBtn("歌词", "lyric_line", typeFilter, () => setTypeFilter("lyric_line"))}
+          {selectBtn("时间", "time_range", typeFilter, () => setTypeFilter("time_range"))}
         </div>
         <div className="flex items-center gap-1">
           <span className="text-xs text-[#A1A1AA] mr-0.5">排序</span>
-          {selectBtn("最近创建", "createdAt", sortMode, () => setSortMode("createdAt"))}
-          {selectBtn("播放时间", "startTime", sortMode, () => setSortMode("startTime"))}
+          {selectBtn("最近", "createdAt", sortMode, () => setSortMode("createdAt"))}
+          {selectBtn("播放", "startTime", sortMode, () => setSortMode("startTime"))}
         </div>
       </div>
 
@@ -186,10 +186,14 @@ export default function MarkPanel({
               {/* Top row: status badge + type label */}
               <div className="flex items-center justify-between mb-2">
                 <span
-                  className={`text-xs px-2 py-0.5 rounded-md font-medium ${
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleStatus(mark);
+                  }}
+                  className={`text-xs px-2 py-0.5 rounded-md font-medium cursor-pointer transition-colors ${
                     mark.status === "pending"
-                      ? "bg-[#FFF7E6] text-[#A16207]"
-                      : "bg-[#ECFDF3] text-[#027A48]"
+                      ? "bg-[#FFF7E6] text-[#A16207] hover:bg-[#FFEDD5]"
+                      : "bg-[#ECFDF3] text-[#027A48] hover:bg-[#D1FAE5]"
                   }`}
                 >
                   {MARK_STATUS_LABELS[mark.status]}
@@ -253,13 +257,13 @@ export default function MarkPanel({
               >
                 <button
                   onClick={() => toggleStatus(mark)}
-                  className={`text-xs font-medium transition-colors ${
+                  className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
                     mark.status === "pending"
-                      ? "text-[#027A48] hover:text-[#027A48]/80"
-                      : "text-[#A16207] hover:text-[#A16207]/80"
+                      ? "bg-[#ECFDF3] text-[#027A48] border-[rgba(2,122,72,0.16)] hover:bg-[#DFF8EA]"
+                      : "bg-[#F2F2F7] text-[#6E6E73] border-black/[0.06] hover:bg-[#E5E5EA]"
                   }`}
                 >
-                  {mark.status === "pending" ? "标记已修改" : "标为待处理"}
+                  {mark.status === "pending" ? "✓ 标记已修改" : "↺ 标为待处理"}
                 </button>
                 {editingId !== mark.id && (
                   <button
