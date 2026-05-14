@@ -83,72 +83,89 @@ export default function MarkPanel({
     setEditingId(null);
   };
 
-  const getStatusColor = (status: MarkStatus) =>
-    status === "pending"
-      ? "bg-yellow-100 text-yellow-800"
-      : "bg-green-100 text-green-800";
-
-  const filterBtn = (
+  const statusPill = (
     label: string,
     value: string,
     current: string,
     onClick: () => void,
-  ) => (
-    <button
-      onClick={onClick}
-      className={`text-xs px-2 py-0.5 rounded ${
-        current === value
-          ? "bg-indigo-600 text-white"
-          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-      }`}
-    >
-      {label}
-    </button>
-  );
+  ) => {
+    const active = current === value;
+    return (
+      <button
+        onClick={onClick}
+        className={`text-xs px-3 py-1 rounded-full font-medium transition-colors ${
+          active
+            ? "bg-[#1D1D1F] text-white"
+            : "text-[#6E6E73] hover:text-[#3A3A3C] hover:bg-[#F2F2F7]"
+        }`}
+      >
+        {label}
+      </button>
+    );
+  };
+
+  const selectBtn = (
+    label: string,
+    value: string,
+    current: string,
+    onClick: () => void,
+  ) => {
+    const active = current === value;
+    return (
+      <button
+        onClick={onClick}
+        className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${
+          active
+            ? "bg-[#F2F2F7] text-[#1D1D1F]"
+            : "text-[#6E6E73] hover:text-[#3A3A3C]"
+        }`}
+      >
+        {label}
+      </button>
+    );
+  };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {/* Header */}
-      <h3 className="text-sm font-semibold text-gray-700">
-        Mark 列表（{filtered.length}）
-      </h3>
-
-      {/* Status filter */}
-      <div>
-        <div className="flex items-center gap-1 flex-wrap">
-          <span className="text-xs text-gray-400 mr-1">状态</span>
-          {filterBtn("全部", "all", statusFilter, () => setStatusFilter("all"))}
-          {filterBtn("待处理", "pending", statusFilter, () => setStatusFilter("pending"))}
-          {filterBtn("已修改", "modified", statusFilter, () => setStatusFilter("modified"))}
-        </div>
+      <div className="flex items-center gap-2">
+        <h3 className="text-[16px] font-semibold text-[#1D1D1F]">Mark 列表</h3>
+        <span className="text-xs px-2 py-0.5 bg-[#F2F2F7] text-[#6E6E73] rounded-full font-medium">
+          {filtered.length}
+        </span>
       </div>
 
-      {/* Type filter */}
-      <div>
-        <div className="flex items-center gap-1 flex-wrap">
-          <span className="text-xs text-gray-400 mr-1">类型</span>
-          {filterBtn("全部", "all", typeFilter, () => setTypeFilter("all"))}
-          {filterBtn("歌词行", "lyric_line", typeFilter, () => setTypeFilter("lyric_line"))}
-          {filterBtn("时间段", "time_range", typeFilter, () => setTypeFilter("time_range"))}
-        </div>
+      {/* Status filter — pill segmented */}
+      <div className="flex items-center gap-0.5 bg-[#F2F2F7] rounded-full p-0.5 w-fit">
+        {statusPill("全部", "all", statusFilter, () => setStatusFilter("all"))}
+        {statusPill("待处理", "pending", statusFilter, () => setStatusFilter("pending"))}
+        {statusPill("已修改", "modified", statusFilter, () => setStatusFilter("modified"))}
       </div>
 
-      {/* Sort */}
-      <div className="flex items-center gap-1">
-        <span className="text-xs text-gray-400 mr-1">排序</span>
-        {filterBtn("最近创建", "createdAt", sortMode, () => setSortMode("createdAt"))}
-        {filterBtn("播放时间", "startTime", sortMode, () => setSortMode("startTime"))}
+      {/* Type filter + Sort */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-[#A1A1AA] mr-0.5">类型</span>
+          {selectBtn("全部", "all", typeFilter, () => setTypeFilter("all"))}
+          {selectBtn("歌词行", "lyric_line", typeFilter, () => setTypeFilter("lyric_line"))}
+          {selectBtn("时间段", "time_range", typeFilter, () => setTypeFilter("time_range"))}
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-[#A1A1AA] mr-0.5">排序</span>
+          {selectBtn("最近创建", "createdAt", sortMode, () => setSortMode("createdAt"))}
+          {selectBtn("播放时间", "startTime", sortMode, () => setSortMode("startTime"))}
+        </div>
       </div>
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <p className="text-gray-400 text-xs py-4 text-center">
+        <p className="text-[#A1A1AA] text-[14px] text-center py-8">
           暂无符合条件的 Mark
         </p>
       )}
 
-      {/* Mark list */}
-      <div className="flex flex-col gap-2">
+      {/* Mark cards */}
+      <div className="flex flex-col gap-3">
         {filtered.map((mark) => {
           const isHighlighted = mark.id === highlightedMarkId;
           const lyricLine = mark.anchorType === "lyric_line" && mark.anchorId
@@ -158,35 +175,40 @@ export default function MarkPanel({
           return (
             <div
               key={mark.id}
-              className={`border rounded p-2 text-sm cursor-pointer transition-colors ${
+              className={`border rounded-[14px] p-4 cursor-pointer transition-all ${
                 isHighlighted
-                  ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300"
-                  : "border-gray-200 hover:bg-gray-50"
+                  ? "border-[#67C7E8] bg-[#F4FBFD] ring-2 ring-[#67C7E8]/25"
+                  : "border-black/[0.06] bg-white hover:border-black/[0.10] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
               }`}
+              style={isHighlighted ? {} : { boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
               onClick={() => onSeekTo(mark.startTime)}
             >
-              {/* Top row: status + type */}
-              <div className="flex items-center justify-between gap-1">
+              {/* Top row: status badge + type label */}
+              <div className="flex items-center justify-between mb-2">
                 <span
-                  className={`text-xs px-1.5 py-0.5 rounded ${getStatusColor(mark.status)}`}
+                  className={`text-xs px-2 py-0.5 rounded-md font-medium ${
+                    mark.status === "pending"
+                      ? "bg-[#FFF7E6] text-[#A16207]"
+                      : "bg-[#ECFDF3] text-[#027A48]"
+                  }`}
                 >
                   {MARK_STATUS_LABELS[mark.status]}
                 </span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs px-2 py-0.5 bg-[#F2F2F7] text-[#6E6E73] rounded-md">
                   {ANCHOR_TYPE_LABELS[mark.anchorType]}
                 </span>
               </div>
 
               {/* Author + time */}
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-[13px] text-[#6E6E73] mb-2">
                 {mark.createdBy} · {formatMarkTime(mark.createdAt)}
               </p>
 
               {/* Content */}
               {editingId === mark.id ? (
-                <div className="mt-1 flex gap-1">
+                <div className="flex gap-1.5 mb-2">
                   <input
-                    className="flex-1 border border-gray-300 rounded px-1 text-xs"
+                    className="flex-1 h-8 px-2.5 border border-black/[0.08] rounded-[10px] text-[14px] outline-none focus:border-[#67C7E8] focus:ring-2 focus:ring-[#67C7E8]/25"
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     onKeyDown={(e) => {
@@ -201,46 +223,55 @@ export default function MarkPanel({
                       e.stopPropagation();
                       saveEdit(mark.id);
                     }}
-                    className="text-xs text-indigo-600 hover:underline"
+                    className="h-8 px-3 bg-[#1D1D1F] text-white text-xs font-medium rounded-[10px] hover:bg-black transition-colors"
                   >
                     保存
                   </button>
                 </div>
               ) : (
-                <p className="text-xs mt-1 text-gray-700">{mark.content}</p>
+                <p className="text-[15px] text-[#1D1D1F] font-medium mb-2 leading-snug">
+                  {mark.content}
+                </p>
               )}
 
               {/* Time range */}
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-[13px] font-mono text-[#0B84A5] mb-1">
                 {formatTime(mark.startTime)} - {formatTime(mark.endTime)}
               </div>
 
               {/* Associated lyric line */}
               {lyricLine && (
-                <p className="text-xs text-indigo-500 mt-0.5 truncate">
-                  歌词：{lyricLine.text}
+                <p className="text-[13px] text-[#6E6E73] truncate">
+                  歌词：<span className="text-[#3A3A3C]">{lyricLine.text}</span>
                 </p>
               )}
 
               {/* Actions */}
-              <div className="flex gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="flex items-center gap-3 mt-3 pt-3 border-t border-black/[0.06]"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <button
                   onClick={() => toggleStatus(mark)}
-                  className="text-xs text-gray-600 hover:underline"
+                  className={`text-xs font-medium transition-colors ${
+                    mark.status === "pending"
+                      ? "text-[#027A48] hover:text-[#027A48]/80"
+                      : "text-[#A16207] hover:text-[#A16207]/80"
+                  }`}
                 >
                   {mark.status === "pending" ? "标记已修改" : "标为待处理"}
                 </button>
                 {editingId !== mark.id && (
                   <button
                     onClick={() => startEdit(mark)}
-                    className="text-xs text-indigo-600 hover:underline"
+                    className="text-xs text-[#6E6E73] hover:text-[#1D1D1F] transition-colors"
                   >
                     编辑
                   </button>
                 )}
                 <button
                   onClick={() => onDeleteMark(mark.id)}
-                  className="text-xs text-red-500 hover:underline"
+                  className="text-xs text-[#A1A1AA] hover:text-[#FF3B30] transition-colors ml-auto"
                 >
                   删除
                 </button>

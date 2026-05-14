@@ -68,27 +68,29 @@ export default function MarkDraftPanel({
   };
 
   return (
-    <div className="border border-indigo-300 rounded p-3 bg-indigo-50">
-      <h4 className="text-sm font-semibold text-gray-700 mb-2">填写 Mark</h4>
+    <div className="bg-[#F4FBFD] border border-[#67C7E8]/20 rounded-[14px] p-4">
+      <h4 className="text-[14px] font-semibold text-[#1D1D1F] mb-3">填写 Mark</h4>
 
-      <p className="text-xs text-gray-600 mb-2">
-        标记片段：{formatTime(initialStart)} - {formatTime(initialEnd)}
+      <p className="text-[14px] text-[#6E6E73] mb-3 font-mono">
+        标记片段：<span className="text-[#0B84A5]">{formatTime(initialStart)} - {formatTime(initialEnd)}</span>
       </p>
 
       <button
         onClick={() => setShowAdjust(!showAdjust)}
-        className="text-xs text-indigo-600 hover:underline mb-2"
+        className="text-xs text-[#0B84A5] hover:text-[#67C7E8] transition-colors mb-3"
       >
         {showAdjust ? "收起调整" : "调整时间"}
       </button>
 
       {showAdjust && (
-        <div className="flex flex-col gap-1 mb-2">
-          <div className="flex items-center gap-2 text-xs">
-            <label className="shrink-0 w-14">开始时间：</label>
+        <div className="flex flex-col gap-2 mb-3">
+          <div className="flex items-center gap-2">
+            <label className="shrink-0 w-16 text-xs text-[#6E6E73]">开始时间</label>
             <input
-              className={`w-24 border rounded px-1 text-xs ${
-                errors.startTime ? "border-red-400" : "border-gray-300"
+              className={`w-28 h-8 border rounded-[10px] px-2 text-xs font-mono outline-none ${
+                errors.startTime
+                  ? "border-[#FF3B30] focus:ring-2 focus:ring-[#FF3B30]/20"
+                  : "border-black/[0.08] focus:border-[#67C7E8] focus:ring-2 focus:ring-[#67C7E8]/25"
               }`}
               value={startStr}
               onChange={(e) => {
@@ -97,14 +99,16 @@ export default function MarkDraftPanel({
               }}
             />
             {errors.startTime && (
-              <span className="text-red-500">{errors.startTime}</span>
+              <span className="text-xs text-[#FF3B30]">{errors.startTime}</span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-xs">
-            <label className="shrink-0 w-14">结束时间：</label>
+          <div className="flex items-center gap-2">
+            <label className="shrink-0 w-16 text-xs text-[#6E6E73]">结束时间</label>
             <input
-              className={`w-24 border rounded px-1 text-xs ${
-                errors.endTime ? "border-red-400" : "border-gray-300"
+              className={`w-28 h-8 border rounded-[10px] px-2 text-xs font-mono outline-none ${
+                errors.endTime
+                  ? "border-[#FF3B30] focus:ring-2 focus:ring-[#FF3B30]/20"
+                  : "border-black/[0.08] focus:border-[#67C7E8] focus:ring-2 focus:ring-[#67C7E8]/25"
               }`}
               value={endStr}
               onChange={(e) => {
@@ -113,17 +117,19 @@ export default function MarkDraftPanel({
               }}
             />
             {errors.endTime && (
-              <span className="text-red-500">{errors.endTime}</span>
+              <span className="text-xs text-[#FF3B30]">{errors.endTime}</span>
             )}
           </div>
         </div>
       )}
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5 mb-4">
         <input
           ref={contentRef}
-          className={`w-full border rounded px-2 py-1 text-xs ${
-            errors.content ? "border-red-400" : "border-gray-300"
+          className={`w-full h-10 px-3 border rounded-[10px] text-[14px] outline-none transition-colors ${
+            errors.content
+              ? "border-[#FF3B30] focus:ring-2 focus:ring-[#FF3B30]/20"
+              : "border-black/[0.08] focus:border-[#67C7E8] focus:ring-2 focus:ring-[#67C7E8]/25"
           }`}
           placeholder="请输入 Mark 内容"
           value={content}
@@ -134,20 +140,20 @@ export default function MarkDraftPanel({
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
         />
         {errors.content && (
-          <p className="text-xs text-red-500">{errors.content}</p>
+          <p className="text-xs text-[#FF3B30]">{errors.content}</p>
         )}
       </div>
 
-      <div className="flex gap-2 mt-2">
+      <div className="flex gap-2">
         <button
           onClick={handleSave}
-          className="px-3 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+          className="h-9 px-5 bg-[#1D1D1F] text-white text-[14px] font-medium rounded-[10px] hover:bg-black transition-colors"
         >
           保存 Mark
         </button>
         <button
           onClick={onCancel}
-          className="px-3 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300"
+          className="h-9 px-4 bg-white border border-black/[0.08] text-[#3A3A3C] text-[14px] font-medium rounded-[10px] hover:bg-[#F2F2F7] transition-colors"
         >
           取消
         </button>

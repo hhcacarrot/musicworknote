@@ -69,8 +69,8 @@ const AudioWaveform = forwardRef<AudioWaveformHandle, Props>(function AudioWavef
 
     const ws = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: "#a5b4fc",
-      progressColor: "#4f46e5",
+      waveColor: "#E5E5EA",
+      progressColor: "#67C7E8",
       height: 100,
       barWidth: 2,
       barGap: 1,
@@ -120,8 +120,8 @@ const AudioWaveform = forwardRef<AudioWaveformHandle, Props>(function AudioWavef
 
   if (!audioUrl) {
     return (
-      <div className="h-[100px] flex items-center justify-center border-2 border-dashed border-gray-300 rounded text-gray-400 text-sm">
-        请先上传音频文件
+      <div className="h-[100px] flex flex-col items-center justify-center border-2 border-dashed border-black/[0.12] rounded-[14px] bg-[#FAFAFA] text-[13px] text-[#A1A1AA] px-4 text-center leading-relaxed">
+        支持 MP3 / WAV，本地临时预览，刷新后可能丢失
       </div>
     );
   }
@@ -130,22 +130,26 @@ const AudioWaveform = forwardRef<AudioWaveformHandle, Props>(function AudioWavef
 
   return (
     <div>
-      <div ref={containerRef} className="w-full rounded border border-gray-200" />
-      <div className="flex items-center gap-3 mt-2 flex-wrap">
+      <div className="w-full rounded-[10px] overflow-hidden border border-black/[0.08] bg-[#FAFAFA]" ref={containerRef} />
+      <div className="flex items-center gap-3 mt-3 flex-wrap">
         <button
           onClick={togglePlay}
           disabled={!isReady}
-          className="px-4 py-1 bg-indigo-600 text-white rounded text-sm disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 h-9 px-4 bg-[#1D1D1F] text-white text-[14px] font-medium rounded-full hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {isPlaying ? "暂停" : "播放"}
         </button>
-        <span className="text-sm text-gray-600 tabular-nums">
-          {formatTime(currentTime)} / {formatTime(duration)}
+        <span className="text-[14px] text-[#1D1D1F] font-mono tabular-nums">
+          {formatTime(currentTime)}
         </span>
+        <span className="text-[14px] text-[#6E6E73] font-mono tabular-nums">
+          / {formatTime(duration)}
+        </span>
+        <span className="text-black/[0.10]">|</span>
         {isMarking ? (
           <button
             onClick={onEndMarking}
-            className="px-4 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+            className="inline-flex items-center gap-1.5 h-9 px-4 bg-[#1D1D1F] text-white text-[14px] font-medium rounded-full hover:bg-black transition-colors"
           >
             结束标记
           </button>
@@ -153,17 +157,17 @@ const AudioWaveform = forwardRef<AudioWaveformHandle, Props>(function AudioWavef
           <button
             onClick={handleStartMarking}
             disabled={markingPhase === "drafting"}
-            className="px-4 py-1 bg-amber-500 text-white rounded text-sm hover:bg-amber-600 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 h-9 px-4 bg-white border border-black/[0.08] text-[#3A3A3C] text-[14px] font-medium rounded-full hover:bg-[#F2F2F7] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             开始标记
           </button>
         )}
       </div>
       {noAudioWarning && (
-        <p className="text-xs text-red-500 mt-1">请先上传音频</p>
+        <p className="text-[13px] text-[#FF3B30] mt-1.5">请先上传音频</p>
       )}
       {isMarking && markingStartTime != null && (
-        <p className="text-xs text-amber-600 mt-1">
+        <p className="text-[13px] text-[#0B84A5] mt-1.5 font-mono">
           正在标记：{formatTime(markingStartTime)} 起
         </p>
       )}

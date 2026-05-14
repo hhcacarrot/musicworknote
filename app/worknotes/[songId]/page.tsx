@@ -13,6 +13,7 @@ import {
   saveMark,
   updateMark,
   deleteMark,
+  updateSong,
 } from "@/lib/storage";
 import { generateId } from "@/lib/utils";
 import AudioWaveform, { type AudioWaveformHandle } from "@/components/AudioWaveform";
@@ -41,14 +42,11 @@ export default function WorknotePage() {
 
   const [markingState, setMarkingState] = useState<MarkingState>({ phase: "idle" });
 
-  // Lyric mark creation state
   const [markingLine, setMarkingLine] = useState<LyricLine | null>(null);
   const [markContent, setMarkContent] = useState("");
 
-  // New mark highlight
   const [highlightedMarkId, setHighlightedMarkId] = useState<string | null>(null);
 
-  // Load data from localStorage
   useEffect(() => {
     const s = getSong(songId);
     if (!s) {
@@ -60,7 +58,6 @@ export default function WorknotePage() {
     setMarks(getMarks(songId));
   }, [songId, router]);
 
-  // Cleanup blob URL on unmount
   useEffect(() => {
     return () => {
       if (audioUrl) URL.revokeObjectURL(audioUrl);
@@ -76,7 +73,6 @@ export default function WorknotePage() {
     setMarkingState({ phase: "idle" });
   };
 
-  // Lyric operations
   const handlePasteLyrics = (text: string) => {
     const lines = text
       .split("\n")
@@ -113,8 +109,6 @@ export default function WorknotePage() {
       return next;
     });
   };
-
-  // --- Marking state machine ---
 
   const handleStartMarking = useCallback(() => {
     setMarkingState({ phase: "marking", startTime: currentTime });
@@ -170,6 +164,7 @@ export default function WorknotePage() {
       };
       saveMark(mark);
       setMarks((prev) => [mark, ...prev]);
+      updateSong(songId, {});
       setHighlightedMarkId(mark.id);
       setTimeout(() => setHighlightedMarkId(null), 1500);
       setMarkingState({ phase: "idle" });
@@ -180,8 +175,6 @@ export default function WorknotePage() {
   const handleCancelDraft = useCallback(() => {
     setMarkingState({ phase: "idle" });
   }, []);
-
-  // --- Lyric Mark operations ---
 
   const handleAddLyricMark = () => {
     if (!markingLine || !markContent.trim()) return;
@@ -198,6 +191,7 @@ export default function WorknotePage() {
     };
     saveMark(mark);
     setMarks((prev) => [mark, ...prev]);
+    updateSong(songId, {});
     setHighlightedMarkId(mark.id);
     setTimeout(() => setHighlightedMarkId(null), 1500);
     setMarkingLine(null);
@@ -208,12 +202,14 @@ export default function WorknotePage() {
     const updated = updateMark(id, data);
     if (updated) {
       setMarks((prev) => prev.map((m) => (m.id === id ? updated : m)));
+      updateSong(songId, {});
     }
   };
 
   const handleDeleteMark = (id: string) => {
     deleteMark(id);
     setMarks((prev) => prev.filter((m) => m.id !== id));
+    updateSong(songId, {});
   };
 
   const handleSeekTo = (time: number) => {
@@ -222,7 +218,7 @@ export default function WorknotePage() {
 
   if (!song) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-gray-400">
+      <div className="flex items-center justify-center min-h-screen text-[#A1A1AA] text-[15px]">
         加载中...
       </div>
     );
@@ -231,106 +227,116 @@ export default function WorknotePage() {
   const hasAudio = duration > 0;
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Top bar */}
-      <header className="flex items-center px-4 py-2 border-b border-gray-200 bg-white shrink-0">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/projects"
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            ← 返回
-          </Link>
-          <h1 className="font-semibold text-gray-800">{song.title}</h1>
-          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded">
-            本地 Demo
-          </span>
-        </div>
+    <div className="h-screen flex flex-col bg-[#F5F5F7]">
+      {/* Header */}
+      <header className="flex items-center px-6 h-14 bg-white/80 backdrop-blur-xl border-b border-black/[0.06] shrink-0">
+        <Link
+          href="/projects"
+          className="text-[14px] text-[#6E6E73] hover:text-[#1D1D1F] transition-colors mr-5"
+        >
+          ← 返回
+        </Link>
+        <h1 className="text-xl font-semibold text-[#1D1D1F] truncate tracking-tight">
+          {song.title}
+        </h1>
+        <span className="ml-3 text-xs px-2.5 py-0.5 bg-[#F2F2F7] text-[#6E6E73] rounded-full">
+          本地 Demo
+        </span>
       </header>
 
       {/* Two-column layout */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left column — Player + Waveform + Lyric timeline */}
-        <div className="flex-1 min-w-0 flex flex-col overflow-y-auto p-4 gap-4">
-          {/* Audio upload */}
-          <div>
-            <label className="inline-block px-4 py-2 bg-gray-600 text-white rounded text-sm cursor-pointer hover:bg-gray-700">
-              上传音频
-              <input
-                type="file"
-                accept="audio/*"
-                onChange={handleAudioUpload}
-                className="hidden"
-              />
-            </label>
-            {audioUrl && (
-              <span className="ml-3 text-xs text-gray-500">
-                音频已加载（本地临时预览，刷新后丢失）
-              </span>
+        {/* Left column — Player + Lyric */}
+        <div className="flex-1 min-w-0 flex flex-col gap-4 p-6 overflow-y-auto">
+          {/* Player card */}
+          <div
+            className="bg-white border border-black/[0.06] rounded-2xl p-5"
+            style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
+          >
+            <h3 className="text-[14px] font-semibold text-[#1D1D1F] mb-3">音频</h3>
+
+            {/* Upload area */}
+            <div className="mb-4">
+              <label className="inline-flex items-center gap-2 h-9 px-4 bg-white border border-black/[0.08] text-[#3A3A3C] text-[14px] font-medium rounded-[10px] hover:bg-[#F2F2F7] transition-colors cursor-pointer">
+                上传音频
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleAudioUpload}
+                  className="hidden"
+                />
+              </label>
+              {audioUrl && (
+                <span className="ml-3 text-[13px] text-[#A1A1AA]">
+                  本地临时预览，刷新后丢失
+                </span>
+              )}
+            </div>
+
+            {/* Waveform + controls */}
+            <AudioWaveform
+              ref={audioRef}
+              audioUrl={audioUrl}
+              onTimeUpdate={setCurrentTime}
+              onDurationReady={setDuration}
+              onFinish={handleAudioFinish}
+              markingPhase={markingState.phase}
+              markingStartTime={
+                markingState.phase === "marking" ? markingState.startTime : null
+              }
+              onStartMarking={handleStartMarking}
+              onEndMarking={handleEndMarking}
+              hasAudio={hasAudio}
+            />
+
+            {/* Mark draft panel */}
+            {markingState.phase === "drafting" && (
+              <div className="mt-4 pt-4 border-t border-black/[0.06]">
+                <MarkDraftPanel
+                  startTime={markingState.startTime}
+                  endTime={markingState.endTime}
+                  duration={duration}
+                  onSave={handleSaveDraftMark}
+                  onCancel={handleCancelDraft}
+                />
+              </div>
             )}
           </div>
 
-          {/* Waveform with marking controls */}
-          <AudioWaveform
-            ref={audioRef}
-            audioUrl={audioUrl}
-            onTimeUpdate={setCurrentTime}
-            onDurationReady={setDuration}
-            onFinish={handleAudioFinish}
-            markingPhase={markingState.phase}
-            markingStartTime={
-              markingState.phase === "marking" ? markingState.startTime : null
-            }
-            onStartMarking={handleStartMarking}
-            onEndMarking={handleEndMarking}
-            hasAudio={hasAudio}
-          />
-
-          {/* Mark draft panel */}
-          {markingState.phase === "drafting" && (
-            <MarkDraftPanel
-              startTime={markingState.startTime}
-              endTime={markingState.endTime}
-              duration={duration}
-              onSave={handleSaveDraftMark}
-              onCancel={handleCancelDraft}
+          {/* Lyric panel card */}
+          <div
+            className="bg-white border border-black/[0.06] rounded-2xl p-5"
+            style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
+          >
+            <LyricPanel
+              lyrics={lyrics}
+              currentTime={currentTime}
+              onSeekTo={handleSeekTo}
+              onAddMark={(line) => setMarkingLine(line)}
+              onUpdateLine={handleUpdateLine}
+              onPasteLyrics={handlePasteLyrics}
+              onGenerateTimeline={handleGenerateTimeline}
             />
-          )}
-
-          {/* Divider */}
-          <hr className="border-gray-200" />
-
-          {/* Lyric input + timeline */}
-          <LyricPanel
-            lyrics={lyrics}
-            currentTime={currentTime}
-            onSeekTo={handleSeekTo}
-            onAddMark={(line) => setMarkingLine(line)}
-            onUpdateLine={handleUpdateLine}
-            onPasteLyrics={handlePasteLyrics}
-            onGenerateTimeline={handleGenerateTimeline}
-          />
+          </div>
 
           {/* Inline lyric mark form */}
           {markingLine && (
-            <div className="p-2 border border-indigo-300 rounded bg-indigo-50">
-              <p className="text-xs text-gray-600 mb-1">
+            <div className="bg-[#F4FBFD] border border-[#67C7E8]/25 rounded-2xl p-4">
+              <p className="text-[14px] text-[#3A3A3C] mb-2.5">
                 为「{markingLine.text}」添加 Mark
               </p>
-              <div className="flex gap-1">
+              <div className="flex gap-2">
                 <input
-                  className="flex-1 border border-gray-300 rounded px-2 py-1 text-xs"
+                  className="flex-1 h-10 px-3 border border-black/[0.08] rounded-[10px] text-[15px] outline-none focus:border-[#67C7E8] focus:ring-2 focus:ring-[#67C7E8]/25 transition-colors"
                   placeholder="输入 Mark 内容"
                   value={markContent}
                   onChange={(e) => setMarkContent(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && handleAddLyricMark()
-                  }
+                  onKeyDown={(e) => e.key === "Enter" && handleAddLyricMark()}
                   autoFocus
                 />
                 <button
                   onClick={handleAddLyricMark}
-                  className="px-2 py-1 bg-indigo-600 text-white rounded text-xs"
+                  className="h-10 px-4 bg-[#1D1D1F] text-white text-[14px] font-medium rounded-[10px] hover:bg-black transition-colors"
                 >
                   保存
                 </button>
@@ -339,7 +345,7 @@ export default function WorknotePage() {
                     setMarkingLine(null);
                     setMarkContent("");
                   }}
-                  className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs"
+                  className="h-10 px-4 bg-white border border-black/[0.08] text-[#3A3A3C] text-[14px] rounded-[10px] hover:bg-[#F2F2F7] transition-colors"
                 >
                   取消
                 </button>
@@ -348,8 +354,8 @@ export default function WorknotePage() {
           )}
         </div>
 
-        {/* Right column — Mark list */}
-        <div className="w-[360px] shrink-0 border-l border-gray-200 overflow-y-auto p-4">
+        {/* Right column — Mark panel */}
+        <div className="w-[400px] shrink-0 border-l border-black/[0.06] bg-white overflow-y-auto p-5">
           <MarkPanel
             marks={marks}
             lyrics={lyrics}

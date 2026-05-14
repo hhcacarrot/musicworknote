@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Backgrounds */
+  --background: #F5F5F7;
+  --surface: #FFFFFF;
+  --surface-subtle: #FAFAFA;
+  --hover-bg: #F2F2F7;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Text */
+  --text-primary: #1D1D1F;
+  --text-secondary: #3A3A3C;
+  --text-tertiary: #6E6E73;
+  --text-muted: #A1A1AA;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Borders */
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+
+  /* Glacier Blue */
+  --glacier: #67C7E8;
+  --glacier-dark: #0B84A5;
+  --glacier-light: #EAF8FC;
+  --glacier-very-light: #F4FBFD;
+
+  /* Danger */
+  --danger: #FF3B30;
+
+  /* Status */
+  --pending-bg: #FFF7E6;
+  --pending-text: #A16207;
+  --modified-bg: #ECFDF3;
+  --modified-text: #027A48;
+
+  /* Radius */
+  --radius-card: 16px;
+  --radius-sm: 14px;
+  --radius-btn: 10px;
+  --radius-input: 10px;
+  --radius-badge: 8px;
+  --radius-modal: 18px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.18);
+
+  --foreground: #1D1D1F;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Text",
+    "SF Pro Display",
+    "Helvetica Neue",
+    Arial,
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code,
+pre,
+.font-mono {
+  font-family:
+    "SF Mono",
+    "SFMono-Regular",
+    ui-monospace,
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    monospace;
 }
